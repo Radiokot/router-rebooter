@@ -25,8 +25,9 @@ open class TelnetRouterRebooter(
     protected val password: String,
     protected val commandPrompt: String,
     protected val rebootCommand: String,
-    protected val port: Int = PORT
+    port: Int? = null
 ) : RouterRebooter(ip) {
+    protected val port = port ?: PORT
 
     override fun reboot() {
         val socket = getSocket()
