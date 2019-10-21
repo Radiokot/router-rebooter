@@ -51,8 +51,9 @@ open class TelnetRouterRebooter(
         // Read command enter prompt.
         readPrompt(commandPrompt, inputStream)
 
-        // Send reboot command.
+        // Send reboot command and accept the echo.
         writer.println(rebootCommand)
+        skipEcho(rebootCommand.length, inputStream)
 
         inputStream.close()
         socket.close()
