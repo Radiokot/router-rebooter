@@ -85,7 +85,7 @@ open class TelnetRouterRebooter(
         while (i < charsCount) {
             waitForInputStreamData(stream)
 
-            stream.read()
+            stream.read().toChar().also { print(it) }
             i++
         }
     }
