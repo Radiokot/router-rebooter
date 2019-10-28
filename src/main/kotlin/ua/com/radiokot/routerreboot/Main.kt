@@ -1,6 +1,7 @@
 package ua.com.radiokot.routerreboot
 
 import ua.com.radiokot.routerreboot.rebooter.TelnetRouterRebooter
+import ua.com.radiokot.routerreboot.rebooter.TendaAc5HttpRebooter
 import java.io.File
 import java.util.*
 
@@ -15,6 +16,7 @@ object Main {
 
         when (mode) {
             "telnet" -> telnet(args)
+            "tenda-ac5" -> tendaAc5(args)
             else -> printHelp()
         }
     }
@@ -32,6 +34,14 @@ object Main {
             |   * command_prompt: ending of a command prompt, i.e. "#"
             |   * reboot_command: command to perform in order to reboot the router
             |   * [port]: non-standard port
+        """.trimMargin()
+        )
+        println()
+        println("""| - tenda-ac5: reboot Tenda AC5 router through it's HTTP API.""".trimMargin())
+        println(
+            """|   * ip: IP address of the router
+            |   * password: router password
+            |   * [port]: non-standard web interface port
         """.trimMargin()
         )
     }
@@ -52,6 +62,21 @@ object Main {
             password = properties.getProperty("password"),
             commandPrompt = properties.getProperty("command_prompt"),
             rebootCommand = properties.getProperty("reboot_command"),
+            port = properties["port"]?.toString()?.toIntOrNull()
+        ).reboot()
+    }
+
+    private fun tendaAc5(args: Array<String>) {
+        val configFile = args.getOrNull(1)
+        if (configFile == null) {
+            println("Config file is required for this mode")
+        }
+
+        val properties = Properties().apply { load(File(configFile).inputStream()) }
+
+        TendaAc5HttpRebooter(
+            ip = properties.getProperty("ip"),
+            password = properties.getProperty("password"),
             port = properties["port"]?.toString()?.toIntOrNull()
         ).reboot()
     }

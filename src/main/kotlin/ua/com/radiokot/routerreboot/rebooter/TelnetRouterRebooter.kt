@@ -20,13 +20,13 @@ import java.nio.BufferOverflowException
 open class TelnetRouterRebooter(
     ip: String,
     protected val loginPrompt: String,
-    protected val login: String,
+    login: String,
     protected val passwordPrompt: String,
-    protected val password: String,
+    password: String,
     protected val commandPrompt: String,
     protected val rebootCommand: String,
     port: Int? = null
-) : RouterRebooter(ip) {
+) : RouterRebooter(ip, login, password) {
     protected val port = port ?: PORT
 
     override fun reboot() {

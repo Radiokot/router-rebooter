@@ -1,0 +1,23 @@
+Tenda auth
+
+Request:
+
+curl 'http://10.0.0.1/login/Auth' -H 'Cookie: password=89c0cd8a815b4ef9a2aee7ee828a9d38slo89v' -H 'Origin: http://10.0.0.1' -H 'Accept-Encoding: gzip, deflate' -H 'Accept-Language: ru,en;q=0.9' -H 'User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36' -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' -H 'Accept: */*' -H 'Referer: http://10.0.0.1/login.html' -H 'X-Requested-With: XMLHttpRequest' -H 'Connection: keep-alive' -H 'DNT: 1' --data 'username=admin&password=89c0cd8a815b4ef9a2aee7ee828a9d38' --compressed --insecure
+
+password is MD5 checksum of actual pass
+
+Response:
+
+HTTP/1.0 302 Redirect
+Server: Http Server
+Date: Mon Oct 21 21:42:07 2019
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: text/html
+Set-Cookie: password=89c0cd8a815b4ef9a2aee7ee828a9d38zle89v; path=/
+Location: http://10.0.0.1/main.html
+
+Reboot
+
+POST http://10.0.0.1/goform/SysToolReboot Content-Type: application/x-www-form-urlencoded'
+Form data: action=0
