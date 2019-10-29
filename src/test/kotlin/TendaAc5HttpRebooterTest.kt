@@ -95,7 +95,7 @@ class TendaAc5HttpRebooterTest {
                 isRebooted = true
 
                 Thread.sleep(1000)
-                
+
                 http.sendResponseHeaders(HttpURLConnection.HTTP_NO_CONTENT, -1)
                 http.close()
             }
