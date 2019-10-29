@@ -60,6 +60,8 @@ class TelnetRebooterTest {
 
                 val command = reader.readLine()
                 println(command)
+                writer.println(command)
+                writer.flush()
 
                 if (login == LOGIN && password == PASSWORD && command == REBOOT_COMMAND) {
                     isRebooted = true
