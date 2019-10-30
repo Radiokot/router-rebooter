@@ -3,6 +3,7 @@ package ua.com.radiokot.routerreboot.rebooter
 import ua.com.radiokot.routerreboot.rebooter.TelnetRouterRebooter.Companion.PORT
 import java.io.InputStream
 import java.io.PrintWriter
+import java.net.InetSocketAddress
 import java.net.Socket
 import java.nio.BufferOverflowException
 
@@ -60,7 +61,9 @@ open class TelnetRouterRebooter(
     }
 
     protected open fun getSocket(): Socket {
-        return Socket(ip, port)
+        return Socket().also {
+            it.connect(InetSocketAddress(ip, port), CONNECTION_TIMEOUT_MS)
+        }
     }
 
     protected open fun readPrompt(expectedEnding: String, stream: InputStream) {
@@ -102,5 +105,6 @@ open class TelnetRouterRebooter(
 
     companion object {
         const val PORT = 23
+        private const val CONNECTION_TIMEOUT_MS = 1000 * 60 * 2
     }
 }
