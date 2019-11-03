@@ -32,6 +32,7 @@ class TendaAc5HttpRebooter(
             println("${it.request().method} ${it.request().url}")
             it.proceed(it.request())
         }
+        .followRedirects(false)
         .build()
 
     override fun reboot() {
