@@ -1,9 +1,10 @@
 package ua.com.radiokot.routerreboot.rebooter
 
-import okhttp3.*
 import ua.com.radiokot.routerreboot.rebooter.TendaAc5HttpRebooter.Companion.PORT
+import java.net.HttpURLConnection
+import java.net.URL
+import java.nio.charset.Charset
 import java.security.MessageDigest
-import java.util.concurrent.TimeUnit
 import javax.xml.bind.DatatypeConverter
 
 /**
@@ -17,23 +18,7 @@ class TendaAc5HttpRebooter(
     password: String,
     port: Int? = null
 ) : RouterRebooter(ip, "admin", password) {
-    private val webClientRootUrl = HttpUrl.Builder()
-        .host(ip)
-        .port(port ?: PORT)
-        .scheme("http")
-        .build()
-
-    private val httpClient = OkHttpClient.Builder()
-        .readTimeout(2, TimeUnit.MINUTES)
-        .writeTimeout(2, TimeUnit.MINUTES)
-        .connectTimeout(2, TimeUnit.MINUTES)
-        .cookieJar(CookieJar.NO_COOKIES)
-        .addInterceptor {
-            println("${it.request().method} ${it.request().url}")
-            it.proceed(it.request())
-        }
-        .followRedirects(false)
-        .build()
+    private val webClientRootUrl = "http://$ip:$port"
 
     override fun reboot() {
         println("Authorizing...")
@@ -50,38 +35,66 @@ class TendaAc5HttpRebooter(
             .let(DatatypeConverter::printHexBinary)
             .toLowerCase()
 
-        val request = Request.Builder()
-            .url(webClientRootUrl.newBuilder().encodedPath("/login/Auth").build())
-            .post(
-                FormBody.Builder()
-                    .add("username", login)
-                    .add("password", passwordHash)
-                    .build()
+        val request = sendForm(
+            "/login/Auth",
+            mapOf(
+                "username" to login,
+                "password" to passwordHash
             )
-            .header("Content-Type", "application/x-www-form-urlencoded")
-            .build()
+        )
 
-        val response = httpClient.newCall(request).execute()
-
-        return response.headers("Set-Cookie")[0].substringAfter("password=")
+       return request.getHeaderField("Set-Cookie")
+           .substringAfter("password=")
+           .substringBeforeLast(';')
     }
 
     private fun sendRebootRequest(authToken: String) {
-        val request = Request.Builder()
-            .url(webClientRootUrl.newBuilder().encodedPath("/goform/SysToolReboot").build())
-            .post(
-                FormBody.Builder()
-                    .add("action", "0")
-                    .build()
-            )
-            .header("Content-Type", "application/x-www-form-urlencoded")
-            .header("Cookie", "password=$authToken")
-            .build()
+        sendForm(
+            "/goform/SysToolReboot",
+            mapOf("action" to 0),
+            authToken
+        ).disconnect()
+    }
 
-        httpClient.newCall(request).execute()
+    private fun sendForm(
+        path: String,
+        data: Map<String, Any>,
+        authToken: String? = null
+    ): HttpURLConnection {
+        val url = URL(webClientRootUrl + path)
+
+        val formData = data.entries.joinToString(separator = "&", transform = { (key, value) ->
+            "$key=$value"
+        })
+
+        return (url.openConnection() as HttpURLConnection).apply {
+            connectTimeout = TIMEOUT_MS
+            readTimeout = TIMEOUT_MS
+            instanceFollowRedirects = false
+
+            requestMethod = "POST"
+            setRequestProperty("Content-Type", FORM_CONTENT_TYPE)
+
+            if (authToken != null) {
+                setRequestProperty("Cookie", "password=$authToken")
+            }
+
+            println("$requestMethod --> $url")
+            println(formData)
+
+            doOutput = true
+            outputStream.use { it.write(formData.toByteArray(Charset.forName(FORM_CONTENT_CHARSET))) }
+
+            inputStream.close()
+
+            println("$responseCode <-- $url")
+        }
     }
 
     companion object {
         const val PORT = 80
+        private const val TIMEOUT_MS = 60 * 1000
+        private const val FORM_CONTENT_CHARSET = "utf-8"
+        private const val FORM_CONTENT_TYPE = "application/x-www-form-urlencoded; charset=$FORM_CONTENT_CHARSET"
     }
 }

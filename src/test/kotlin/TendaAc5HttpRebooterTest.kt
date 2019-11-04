@@ -66,6 +66,7 @@ class TendaAc5HttpRebooterTest {
 
                 http.responseHeaders.add("Content-type", "text/html")
                 http.responseHeaders.add("Set-Cookie", "password=$authToken; path=/")
+                http.responseHeaders.add("Location", "/login.html")
                 http.sendResponseHeaders(HttpURLConnection.HTTP_MOVED_TEMP, 0)
                 http.close()
             }
