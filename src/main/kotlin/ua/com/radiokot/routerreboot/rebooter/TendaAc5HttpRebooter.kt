@@ -18,7 +18,9 @@ class TendaAc5HttpRebooter(
     password: String,
     port: Int? = null
 ) : RouterRebooter(ip, "admin", password) {
-    private val webClientRootUrl = "http://$ip:$port"
+    private val port = port ?: PORT
+
+    private val webClientRootUrl = "http://$ip:${this.port}"
 
     override fun reboot() {
         println("Authorizing...")
