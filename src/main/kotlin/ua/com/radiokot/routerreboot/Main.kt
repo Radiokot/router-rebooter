@@ -1,3 +1,5 @@
+@file:JvmName("Main")
+
 package ua.com.radiokot.routerreboot
 
 import ua.com.radiokot.routerreboot.rebooter.TelnetRouterRebooter
@@ -6,6 +8,7 @@ import java.io.File
 import java.util.*
 
 object Main {
+    @JvmStatic
     fun main(args: Array<String>) {
         val mode = if (args.size <= 1) {
             printHelp()
